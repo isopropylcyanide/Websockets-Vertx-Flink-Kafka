@@ -1,11 +1,10 @@
 package org.aman.wsvertx;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.DeliveryOptions;
 import org.aman.wsvertx.model.codec.SampleRequestCodec;
-import org.aman.wsvertx.model.payload.SampleRequest;
+import org.aman.wsvertx.model.payload.ApiRequest;
 import org.aman.wsvertx.util.Util;
 import org.apache.log4j.Logger;
 
@@ -19,23 +18,29 @@ public class EventBusSenderVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) throws InterruptedException {
 		logger.info("Deployed event sender verticle");
 		vertx.deployVerticle(new ReceiverKafkaProducerVerticle("topic1"));
-		SampleRequest sampleRequest = getSampleRequest();
+		ApiRequest apiRequest = getApiRequest();
 		Thread.sleep(1000);
+
 		DeliveryOptions deliveryOptions = new DeliveryOptions();
 		deliveryOptions.setCodecName(SampleRequestCodec.class.getName());
 		vertx.eventBus()
 				.registerCodec(new SampleRequestCodec())
-				.send("kafka.queue.publisher", sampleRequest, deliveryOptions, messageAsyncResult -> {
+				.send("kafka.queue.publisher", apiRequest, deliveryOptions, messageAsyncResult -> {
 					if (messageAsyncResult.succeeded()){
 						logger.info("Message status [" + messageAsyncResult.result().body() + "]");
 					}
 				});
 	}
 
-	private SampleRequest getSampleRequest() {
-		SampleRequest sampleRequest = new SampleRequest();
-		sampleRequest.setData("This is coming from vert-x");
-		sampleRequest.setSenderId(Util.generateRandomUUID());
-		return sampleRequest;
+	/**
+	 * Generates a sample api request
+	 */
+	private ApiRequest getApiRequest() {
+		String id = Util.generateRandomUUID();
+		ApiRequest apiRequest = new ApiRequest();
+		apiRequest.setSenderId(id);
+		apiRequest.setEndPoint("/api/users/profile?id=" + id);
+		apiRequest.setPayLoad("This is coming from vert-x");
+		return apiRequest;
 	}
 }
