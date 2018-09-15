@@ -17,8 +17,15 @@ public class ReceiverKafkaProducerVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) {
 		logger.info("Deployed verticle that sends to Kafka Topic[" + topic + "]");
 		vertx.eventBus().consumer("kafka.queue.publisher", message -> {
-			logger.info(message);
 			logger.info(this.topic + " received message: " + message.body());
+			message.reply("Published to kafka");
+		}).completionHandler(voidAsyncResult -> {
+			if (voidAsyncResult.succeeded()){
+				logger.info("kafka.queue.publisher handler set up successful");
+			}
+			else{
+				logger.info("kafka.queue.publisher handler set up failed");
+			}
 		});
 	}
 }

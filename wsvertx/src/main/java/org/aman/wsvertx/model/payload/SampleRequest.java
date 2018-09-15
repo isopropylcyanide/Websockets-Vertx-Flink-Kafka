@@ -29,4 +29,12 @@ public class SampleRequest {
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
 	}
+
+	@Override
+	public String toString() {
+		return "SampleRequest{" +
+				"data='" + data + '\'' +
+				", senderId='" + senderId + '\'' +
+				'}';
+	}
 }

@@ -1,7 +1,10 @@
 package org.aman.wsvertx;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Future;
+import io.vertx.core.eventbus.DeliveryOptions;
+import org.aman.wsvertx.model.codec.SampleRequestCodec;
 import org.aman.wsvertx.model.payload.SampleRequest;
 import org.aman.wsvertx.util.Util;
 import org.apache.log4j.Logger;
@@ -18,7 +21,15 @@ public class EventBusSenderVerticle extends AbstractVerticle {
 		vertx.deployVerticle(new ReceiverKafkaProducerVerticle("topic1"));
 		SampleRequest sampleRequest = getSampleRequest();
 		Thread.sleep(1000);
-		vertx.eventBus().publish("kafka.queue.publisher", sampleRequest.toString());
+		DeliveryOptions deliveryOptions = new DeliveryOptions();
+		deliveryOptions.setCodecName(SampleRequestCodec.class.getName());
+		vertx.eventBus()
+				.registerCodec(new SampleRequestCodec())
+				.send("kafka.queue.publisher", sampleRequest, deliveryOptions, messageAsyncResult -> {
+					if (messageAsyncResult.succeeded()){
+						logger.info("Message status [" + messageAsyncResult.result().body() + "]");
+					}
+				});
 	}
 
 	private SampleRequest getSampleRequest() {
