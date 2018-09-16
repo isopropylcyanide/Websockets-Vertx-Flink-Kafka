@@ -19,26 +19,34 @@ public class FlinkReadFromKafka {
 	public static void main(String[] args) throws Exception {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.setParallelism(1);
-		Properties prop = getConfig();
+		Properties prop = getKafkaConsumerConfig();
+		// Create a flink consumer from the topic with a custom serializer for "LoginRequest"
 		FlinkKafkaConsumer010<LoginRequest> consumer = new FlinkKafkaConsumer010<>(prop.getProperty("topic"),
 				new LoginRequestSerializer(), prop);
 
 		consumer.setStartFromLatest();
+		// Create a flink data stream from the consumer source i.e Kafka topic
 		DataStream<LoginRequest> messageStream = env.addSource(consumer);
 
-		//call async request for each of the loginRequest
+		//Function that defines how a datastream object would be transformed from within flink
 		AsyncFunction<LoginRequest, LoginResponse> loginRestTransform = new AsyncInvokeRestApiFunction();
+
+		//Transform the datastream in parallel
 		DataStream<LoginResponse> result = AsyncDataStream
 						.unorderedWait(messageStream, loginRestTransform, 1000L, TimeUnit.MILLISECONDS, 20)
 						.setParallelism(20);
-		
-		// write to kafka
-		result.addSink(new FlinkKafkaProducer010<>("flink-demo-resp", new LoginResponseSerializer(), getConfig()));
+
+		//Write the result back to the Kafka sink i.e response topic
+		result.addSink(new FlinkKafkaProducer010<>("flink-demo-resp", new LoginResponseSerializer(),
+				getKafkaConsumerConfig()));
 		env.execute();
 	}
-	
-	
-	public static Properties getConfig() {
+
+
+	/**
+	 * Generate the properties for the kafka consumer
+	 */
+	public static Properties getKafkaConsumerConfig() {
 		Properties prop = new Properties();
 		prop.setProperty("topic", "flink-demo");
 		prop.setProperty("bootstrap.servers", "localhost:9092");
