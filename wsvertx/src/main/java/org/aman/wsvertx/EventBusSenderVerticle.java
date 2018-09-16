@@ -17,19 +17,26 @@ public class EventBusSenderVerticle extends AbstractVerticle {
 
 	public void start(Future<Void> startFuture) throws InterruptedException {
 		logger.info("Deployed event sender verticle");
-		vertx.deployVerticle(new ReceiverKafkaProducerVerticle("flink-demo"));
-		LoginRequest loginRequest = getLoginRequest();
-		Thread.sleep(1000);
 
+		// Set delivery options to include a custom codec for sending the login request
 		DeliveryOptions deliveryOptions = new DeliveryOptions();
 		deliveryOptions.setCodecName(LoginRequestCodec.class.getName());
-		vertx.eventBus()
-				.registerCodec(new LoginRequestCodec())
-				.send("kafka.queue.publisher", loginRequest, deliveryOptions, messageAsyncResult -> {
-					if (messageAsyncResult.succeeded()){
-						logger.info("Message status [" + messageAsyncResult.result().body() + "]");
-					}
-				});
+		LoginRequest loginRequest = getLoginRequest();
+
+		// Deploy the kafka producer verticle that reads events on "kafka.queue.publisher"
+		vertx.deployVerticle(new ReceiverKafkaProducerVerticle("flink-demo"), stringAsyncResult -> {
+
+			if (stringAsyncResult.succeeded()) {
+				// Once the kafka verticle is deployed successfully, we can begin sending the message
+				vertx.eventBus()
+						.registerCodec(new LoginRequestCodec())
+						.send("kafka.queue.publisher", loginRequest, deliveryOptions, messageAsyncResult -> {
+							if (messageAsyncResult.succeeded()) {
+								logger.info("Message status [" + messageAsyncResult.result().body() + "]");
+							}
+						});
+			}
+		});
 	}
 
 	/**

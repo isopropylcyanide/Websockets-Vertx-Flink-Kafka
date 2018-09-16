@@ -25,9 +25,11 @@ public class ReceiverKafkaProducerVerticle extends AbstractVerticle {
 		this.kafkaProducer = null;
 	}
 
+	@Override
 	public void start(Future<Void> startFuture) {
 		logger.info("Deployed verticle that sends to Kafka Topic[" + topic + "]");
 
+		// Listen to the events on the bus with the address "kafka.queue.publisher"
 		vertx.eventBus().consumer("kafka.queue.publisher", message -> {
 			LoginRequest loginRequest = (LoginRequest) message.body();
 			logger.info(this.topic + " received message: " + loginRequest);
@@ -51,13 +53,18 @@ public class ReceiverKafkaProducerVerticle extends AbstractVerticle {
 		}).completionHandler(voidAsyncResult -> {
 			if (voidAsyncResult.succeeded()){
 				logger.info("kafka.queue.publisher handler set up successful");
-			}
-			else{
+				// Signal to the caller that handler setup successfully
+				startFuture.complete();
+			} else {
 				logger.info("kafka.queue.publisher handler set up failed");
+				// Signal to the caller that the consumer handler failed
 			}
 		});
 	}
 
+	/**
+	 * Generate a sample json login request
+	 */
 	private Optional<String> getJsonLoginRequest(LoginRequest loginRequest) {
 		try {
 			ObjectMapper mapper = new ObjectMapper();
