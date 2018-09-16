@@ -1,6 +1,6 @@
 package org.aman.wsvertx.model.payload;
 
-public class SampleResponse {
+public class LoginResponse {
 
 	private String response;
 
@@ -8,13 +8,13 @@ public class SampleResponse {
 
 	private Boolean success;
 
-	public SampleResponse(String response, String senderId, Boolean success) {
+	public LoginResponse(String response, String senderId, Boolean success) {
 		this.response = response;
 		this.senderId = senderId;
 		this.success = success;
 	}
 
-	public SampleResponse() {
+	public LoginResponse() {
 	}
 
 	public String getResponse() {

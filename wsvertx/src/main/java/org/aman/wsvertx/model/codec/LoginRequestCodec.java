@@ -6,31 +6,31 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
 import io.vertx.core.json.JsonObject;
-import org.aman.wsvertx.model.payload.ApiRequest;
+import org.aman.wsvertx.model.payload.LoginRequest;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.io.StringReader;
 
-public class SampleRequestCodec implements MessageCodec<ApiRequest, ApiRequest> {
+public class LoginRequestCodec implements MessageCodec<LoginRequest, LoginRequest> {
 
-	private static final Logger logger = Logger.getLogger(SampleRequestCodec.class);
+	private static final Logger logger = Logger.getLogger(LoginRequestCodec.class);
 
 	@Override
-	public void encodeToWire(Buffer buffer, ApiRequest apiRequest) {
+	public void encodeToWire(Buffer buffer, LoginRequest loginRequest) {
 		ObjectWriter ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 		try {
-			String jsonToStr = ow.writeValueAsString(apiRequest);
+			String jsonToStr = ow.writeValueAsString(loginRequest);
 			int length = jsonToStr.getBytes().length;
 			buffer.appendInt(length);
 			buffer.appendString(jsonToStr);
 		} catch (JsonProcessingException e) {
-			logger.error("Error encoding [" + apiRequest + "] from " + this.name());
+			logger.error("Error encoding [" + loginRequest + "] from " + this.name());
 		}
 	}
 
 	@Override
-	public ApiRequest decodeFromWire(int position, Buffer buffer) {
+	public LoginRequest decodeFromWire(int position, Buffer buffer) {
 		int length = buffer.getInt(position);
 		// Get JSON string by it`s length
 		// Jump 4 because getInt() == 4 bytes
@@ -38,7 +38,7 @@ public class SampleRequestCodec implements MessageCodec<ApiRequest, ApiRequest> 
 		JsonObject contentJson = new JsonObject(jsonStr);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
-			return mapper.readValue(new StringReader(jsonStr), ApiRequest.class);
+			return mapper.readValue(new StringReader(jsonStr), LoginRequest.class);
 		} catch (IOException e) {
 			logger.error("Error decoding [" + jsonStr + "] to " + this.name() );
 		}
@@ -46,8 +46,8 @@ public class SampleRequestCodec implements MessageCodec<ApiRequest, ApiRequest> 
 	}
 
 	@Override
-	public ApiRequest transform(ApiRequest apiRequest) {
-		return apiRequest;
+	public LoginRequest transform(LoginRequest loginRequest) {
+		return loginRequest;
 	}
 
 	@Override
