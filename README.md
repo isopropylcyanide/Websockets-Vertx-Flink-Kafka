@@ -30,9 +30,17 @@
   # Start Kafka server
   $ kafka-server-start.bat ..\..\config\server.properties
   
-  # Create a topic
-  $ kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic1
-  $ kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic topic2
+  # Create a request topic
+  $ kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic flink-demo
+
+  # Create a response queue
+  $ kafka-topics.bat --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic flink-demo-resp
+  
+  # Verify the consumer of request queue flink-demo
+  $ kafka-console-consumer.bat --bootstrap-server localhost:9092 --from-beginning --topic flink-demo
+
+  # Verify the consumer of response queue flink-demo-resp
+  $ kafka-console-consumer.bat --bootstrap-server localhost:9092 --from-beginning --topic flink-demo-resp
   
 ```
  Make sure following is appended to **config\server.properties**
@@ -41,7 +49,18 @@
  advertised.host.name = localhost 
  ```
  
+ Note: Replace .bat files with .sh files when working in a UNIX environment.
+ 
  ---
+ 
+ 
+ ### Setting up the project ###
+ * Run the kafka-flink connector project that waits for incoming data stream from kafka queue "flink_resp"
+ * Run the ws-vertx project that invokes an event on the event bus which writes a sample API request to the topic.
+ * Verify that the message is written correctly on the topic "flink-demo"
+ * Flink Kafka connector consumes the message, serializes it, transforms the data stream into a response stream
+ * Flink job now writes the response back to the response topic "flink-demo-resp"
+
 
 ----
 ### Websockets ###
