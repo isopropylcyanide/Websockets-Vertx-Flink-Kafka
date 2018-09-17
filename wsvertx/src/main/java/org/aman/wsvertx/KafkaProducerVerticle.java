@@ -28,14 +28,13 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Future<Void> startFuture) {
-		logger.info("Deployed verticle that sends to Kafka Topic[" + topic + "]");
+		logger.info("Deployed verticle [" + this.getClass().getName() + "] topic[" + this.topic + "]");
 
 		//Create the producer
 		this.kafkaProducer = KafkaProducerConfig.getKafkaProducerConfig(vertx);
 
 		// Listen to the events on the bus with the address "kafka.queue.publisher"
 		vertx.eventBus().consumer("ws.messages.producer.event.bus", message -> {
-			logger.info(this.topic + " received message: " + message);
 			Optional<JsonObject> validJsonRequestOpt = getJsonRequest(message);
 			Optional<ProducerRecord<String, JsonObject>> kafkaProducerRecordOpt =
 					validJsonRequestOpt.map(jsonReq -> KafkaProducerRecord.create(this.topic, jsonReq))
@@ -81,7 +80,7 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 
 	@Override
 	public void stop() throws Exception {
-		if (kafkaProducer != null) {
+		if (null != kafkaProducer) {
 			kafkaProducer.close(voidAsyncResult -> {
 				if (voidAsyncResult.succeeded()) {
 					logger.info("Producer [" + this.topic + "] closed successfully");
