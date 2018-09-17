@@ -18,6 +18,12 @@ public class MainVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) throws Exception {
 		logger.info("Deployed main module " + startFuture + Thread.currentThread().getName());
 
+		//Deploy the server verticle that listens to socket reqs with unique id
+		vertx.deployVerticle(new ServerSocketEventBusVerticle());
+
+		//Deploy the client verticle that sends response to socket with unique id
+		vertx.deployVerticle(new ClientSocketRequestVerticle());
+
 		//Deploy the kafka sender verticle
 		vertx.deployVerticle(new EventBusKafkaSenderVerticle());
 

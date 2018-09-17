@@ -34,7 +34,7 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 		this.kafkaProducer = KafkaProducerConfig.getKafkaProducerConfig(vertx);
 
 		// Listen to the events on the bus with the address "kafka.queue.publisher"
-		vertx.eventBus().consumer("kafka.queue.publisher", message -> {
+		vertx.eventBus().consumer("ws.messages.producer.event.bus", message -> {
 			logger.info(this.topic + " received message: " + message);
 			Optional<JsonObject> validJsonRequestOpt = getJsonRequest(message);
 			Optional<ProducerRecord<String, JsonObject>> kafkaProducerRecordOpt =

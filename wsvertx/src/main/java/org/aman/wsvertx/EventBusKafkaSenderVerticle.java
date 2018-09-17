@@ -30,7 +30,7 @@ public class EventBusKafkaSenderVerticle extends AbstractVerticle {
 				// Once the kafka verticle is deployed successfully, we can begin sending the message
 				vertx.eventBus()
 						.registerCodec(new LoginRequestCodec())
-						.send("kafka.queue.publisher", loginRequest, deliveryOptions, messageAsyncResult -> {
+						.send("ws.messages.producer.event.bus", loginRequest, deliveryOptions, messageAsyncResult -> {
 							if (messageAsyncResult.succeeded()) {
 								logger.info("Message status [" + messageAsyncResult.result().body() + "]");
 							}
