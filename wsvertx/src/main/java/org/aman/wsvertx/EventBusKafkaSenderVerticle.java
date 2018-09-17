@@ -2,10 +2,6 @@ package org.aman.wsvertx;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.DeliveryOptions;
-import org.aman.wsvertx.model.codec.LoginRequestCodec;
-import org.aman.wsvertx.model.payload.LoginRequest;
-import org.aman.wsvertx.util.Util;
 import org.apache.log4j.Logger;
 
 /**
@@ -16,39 +12,15 @@ public class EventBusKafkaSenderVerticle extends AbstractVerticle {
 	private static final Logger logger = Logger.getLogger(EventBusKafkaSenderVerticle.class);
 
 	public void start(Future<Void> startFuture) throws InterruptedException {
-		logger.info("Deployed event kafka producer sender verticle");
-
-		// Set delivery options to include a custom codec for sending the login request
-		DeliveryOptions deliveryOptions = new DeliveryOptions();
-		deliveryOptions.setCodecName(LoginRequestCodec.class.getName());
-		LoginRequest loginRequest = getLoginRequest();
+		logger.info("Deployed verticle [" + this.getClass().getName() + "]");
 
 		// Deploy the kafka producer verticle that reads events on "kafka.queue.publisher"
 		vertx.deployVerticle(new KafkaProducerVerticle("flink-demo"), stringAsyncResult -> {
-
 			if (stringAsyncResult.succeeded()) {
-				// Once the kafka verticle is deployed successfully, we can begin sending the message
-				vertx.eventBus()
-						.registerCodec(new LoginRequestCodec())
-						.send("ws.messages.producer.event.bus", loginRequest, deliveryOptions, messageAsyncResult -> {
-							if (messageAsyncResult.succeeded()) {
-								logger.info("Message status [" + messageAsyncResult.result().body() + "]");
-							}
-						});
+				// Once the kafka producer handler is setup successfully, send periodic requests
+				logger.info("Kafka producer handler setup successful");
 			}
 		});
 	}
 
-	/**
-	 * Generates a sample api request
-	 */
-	private LoginRequest getLoginRequest() {
-		String id = Util.generateRandomUUID();
-		LoginRequest loginRequest = new LoginRequest();
-		loginRequest.setUsername("user");
-		loginRequest.setPassword("password");
-		loginRequest.setSenderId(id);
-		loginRequest.setRequestUrl("/api/login?id=" + loginRequest.getSenderId());
-		return loginRequest;
-	}
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.MessageCodec;
-import io.vertx.core.json.JsonObject;
 import org.aman.wsvertx.model.payload.LoginRequest;
 import org.apache.log4j.Logger;
 
@@ -35,7 +34,6 @@ public class LoginRequestCodec implements MessageCodec<LoginRequest, LoginReques
 		// Get JSON string by it`s length
 		// Jump 4 because getInt() == 4 bytes
 		String jsonStr = buffer.getString(position += 4, position += length);
-		JsonObject contentJson = new JsonObject(jsonStr);
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			return mapper.readValue(new StringReader(jsonStr), LoginRequest.class);

@@ -12,7 +12,7 @@ public class EventBusKafkaReceiverVerticle extends AbstractVerticle {
 	private static final Logger logger = Logger.getLogger(EventBusKafkaReceiverVerticle.class);
 
 	public void start(Future<Void> startFuture) throws InterruptedException {
-		logger.info("Deployed event kafka receiver sender verticle");
+		logger.info("Deployed verticle [" + this.getClass().getName() + "]");
 
 		// Deploy the kafka consumer verticle that reads incoming messages on topic fink-demo-resp
 		vertx.deployVerticle(new KafkaConsumerVerticle("flink-demo-resp"), stringAsyncResult -> {

@@ -24,10 +24,13 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Future<Void> startFuture) {
-		logger.info("Deployed verticle that reads from Kafka Topic[" + topic + "]");
+		logger.info("Deployed verticle [" + this.getClass().getName() + "] topic[" + this.topic + "]");
 
 		//Create the kafka consumer
 		kafkaConsumer = KafkaConsumerConfig.getKafkaConsumerConfig(vertx);
+
+		// Subscribe to the correct kafka topic
+		kafkaConsumer.subscribe(Collections.singleton(this.topic));
 
 		//Attach the consumer handler
 		kafkaConsumer.handler(record -> {
@@ -41,12 +44,15 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
 
 			//Put the event back to the websocket handler address on the bus
 			senderId.ifPresent(id -> {
-				vertx.eventBus().send("ws-handler-" + senderId, message);
+				vertx.eventBus().send("ws-handler-" + id, message, messageAsyncResult -> {
+					if (messageAsyncResult.succeeded()) {
+						logger.info("Sending event to ws-handler-" + id);
+					} else {
+						logger.info("Failed to send event to ws-handler-" + id);
+					}
+				});
 			});
 		});
-
-		// Subscribe to the correct kafka topic
-		kafkaConsumer.subscribe(Collections.singleton(this.topic));
 
 		// Handle errors in the kafka consumer
 		kafkaConsumer.exceptionHandler(exception -> {
@@ -57,7 +63,7 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
 
 	@Override
 	public void stop() throws Exception {
-		if (kafkaConsumer != null) {
+		if (null != kafkaConsumer) {
 			kafkaConsumer.unsubscribe(voidAsyncResult -> {
 				if (voidAsyncResult.succeeded()) {
 					logger.info("Consumer successfully unsubscribed");
