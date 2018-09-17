@@ -11,12 +11,12 @@ import org.apache.log4j.Logger;
 /**
  * Receives an event from the event bus.
  */
-public class EventBusSenderVerticle extends AbstractVerticle {
+public class EventBusKafkaSenderVerticle extends AbstractVerticle {
 
-	private static final Logger logger = Logger.getLogger(EventBusSenderVerticle.class);
+	private static final Logger logger = Logger.getLogger(EventBusKafkaSenderVerticle.class);
 
 	public void start(Future<Void> startFuture) throws InterruptedException {
-		logger.info("Deployed event sender verticle");
+		logger.info("Deployed event kafka producer sender verticle");
 
 		// Set delivery options to include a custom codec for sending the login request
 		DeliveryOptions deliveryOptions = new DeliveryOptions();
@@ -37,8 +37,6 @@ public class EventBusSenderVerticle extends AbstractVerticle {
 						});
 			}
 		});
-
-
 	}
 
 	/**

@@ -30,11 +30,12 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 	public void start(Future<Void> startFuture) {
 		logger.info("Deployed verticle that sends to Kafka Topic[" + topic + "]");
 
+		//Create the producer
+		this.kafkaProducer = KafkaProducerConfig.getKafkaProducerConfig(vertx);
+
 		// Listen to the events on the bus with the address "kafka.queue.publisher"
 		vertx.eventBus().consumer("kafka.queue.publisher", message -> {
 			logger.info(this.topic + " received message: " + message);
-			this.kafkaProducer = KafkaProducerConfig.getKafkaProducerConfig(vertx);
-
 			Optional<JsonObject> validJsonRequestOpt = getJsonRequest(message);
 			Optional<ProducerRecord<String, JsonObject>> kafkaProducerRecordOpt =
 					validJsonRequestOpt.map(jsonReq -> KafkaProducerRecord.create(this.topic, jsonReq))
@@ -76,5 +77,18 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 			logger.error("Cannot serialize [" + object + "] into JSON");
 		}
 		return Optional.empty();
+	}
+
+	@Override
+	public void stop() throws Exception {
+		if (kafkaProducer != null) {
+			kafkaProducer.close(voidAsyncResult -> {
+				if (voidAsyncResult.succeeded()) {
+					logger.info("Producer [" + this.topic + "] closed successfully");
+				} else {
+					logger.info("Producer [" + this.topic + "] failed to close");
+				}
+			});
+		}
 	}
 }

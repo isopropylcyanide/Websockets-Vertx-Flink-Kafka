@@ -7,14 +7,19 @@ import com.aman.kafkalink.entity.LoginResponseSerializer;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.async.AsyncFunction;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer010;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer010;
+import org.apache.flink.util.Collector;
+import org.apache.log4j.Logger;
 
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 public class FlinkReadFromKafka {
+
+	private static final Logger logger = Logger.getLogger(FlinkReadFromKafka.class);
 	
 	public static void main(String[] args) throws Exception {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -25,8 +30,15 @@ public class FlinkReadFromKafka {
 				new LoginRequestSerializer(), prop);
 
 		consumer.setStartFromLatest();
+
 		// Create a flink data stream from the consumer source i.e Kafka topic
 		DataStream<LoginRequest> messageStream = env.addSource(consumer);
+		logger.info(messageStream.process(new ProcessFunction<LoginRequest, Object>() {
+			@Override
+			public void processElement(LoginRequest loginRequest, Context context, Collector<Object> collector) throws Exception {
+				logger.info("Processing incoming request " + loginRequest);
+			}
+		}));
 
 		//Function that defines how a datastream object would be transformed from within flink
 		AsyncFunction<LoginRequest, LoginResponse> loginRestTransform = new AsyncInvokeRestApiFunction();
