@@ -1,21 +1,22 @@
 package org.aman.wsvertx.config;
 
 import io.vertx.core.Vertx;
-import io.vertx.kafka.client.producer.KafkaProducer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.kafka.client.producer.KafkaWriteStream;
+import io.vertx.kafka.client.serialization.JsonObjectSerializer;
 import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 
 public class KafkaProducerConfig {
 
-	public static KafkaProducer<String, String> getKafkaProducerConfig(Vertx vertx) {
+	public static KafkaWriteStream<String, JsonObject> getKafkaProducerConfig(Vertx vertx) {
 		Properties config = new Properties();
 		config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
-		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+		config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, JsonObjectSerializer.class);
+		config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonObjectSerializer.class);
 		config.put(ProducerConfig.ACKS_CONFIG, "1");
 
-		return KafkaProducer.create(vertx, config);
+		return KafkaWriteStream.create(vertx, config, String.class, JsonObject.class);
 	}
 }

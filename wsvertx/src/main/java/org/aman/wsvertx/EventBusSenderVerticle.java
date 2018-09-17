@@ -24,7 +24,7 @@ public class EventBusSenderVerticle extends AbstractVerticle {
 		LoginRequest loginRequest = getLoginRequest();
 
 		// Deploy the kafka producer verticle that reads events on "kafka.queue.publisher"
-		vertx.deployVerticle(new ReceiverKafkaProducerVerticle("flink-demo"), stringAsyncResult -> {
+		vertx.deployVerticle(new KafkaProducerVerticle("flink-demo"), stringAsyncResult -> {
 
 			if (stringAsyncResult.succeeded()) {
 				// Once the kafka verticle is deployed successfully, we can begin sending the message
@@ -37,6 +37,8 @@ public class EventBusSenderVerticle extends AbstractVerticle {
 						});
 			}
 		});
+
+
 	}
 
 	/**
