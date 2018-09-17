@@ -1,4 +1,4 @@
-# ws-vertx-flink-kafka
+# Websockets-Vertx-Kafka-Flink
 ### A simple request response cycle using Websockets, Eclipse Vert-x server, Apache Kafka, Apache Flink. ###
 ---
 
