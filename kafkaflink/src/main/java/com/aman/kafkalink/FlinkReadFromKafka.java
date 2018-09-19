@@ -1,9 +1,9 @@
 package com.aman.kafkalink;
 
-import com.aman.kafkalink.entity.LoginRequest;
-import com.aman.kafkalink.entity.LoginRequestSerializer;
-import com.aman.kafkalink.entity.LoginResponse;
-import com.aman.kafkalink.entity.LoginResponseSerializer;
+import com.aman.kafkalink.entity.RegisterRequest;
+import com.aman.kafkalink.entity.RegisterRequestSerializer;
+import com.aman.kafkalink.entity.RegisterResponse;
+import com.aman.kafkalink.entity.RegisterResponseSerializer;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -25,31 +25,31 @@ public class FlinkReadFromKafka {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.setParallelism(1);
 		Properties prop = getKafkaConsumerConfig();
-		// Create a flink consumer from the topic with a custom serializer for "LoginRequest"
-		FlinkKafkaConsumer010<LoginRequest> consumer = new FlinkKafkaConsumer010<>(prop.getProperty("topic"),
-				new LoginRequestSerializer(), prop);
+		// Create a flink consumer from the topic with a custom serializer for "RegisterRequest"
+		FlinkKafkaConsumer010<RegisterRequest> consumer = new FlinkKafkaConsumer010<>(prop.getProperty("topic"),
+				new RegisterRequestSerializer(), prop);
 
 		consumer.setStartFromLatest();
 
 		// Create a flink data stream from the consumer source i.e Kafka topic
-		DataStream<LoginRequest> messageStream = env.addSource(consumer);
-		logger.info(messageStream.process(new ProcessFunction<LoginRequest, Object>() {
+		DataStream<RegisterRequest> messageStream = env.addSource(consumer);
+		logger.info(messageStream.process(new ProcessFunction<RegisterRequest, Object>() {
 			@Override
-			public void processElement(LoginRequest loginRequest, Context context, Collector<Object> collector) throws Exception {
-				logger.info("Processing incoming request " + loginRequest);
+			public void processElement(RegisterRequest RegisterRequest, Context context, Collector<Object> collector) throws Exception {
+				logger.info("Processing incoming request " + RegisterRequest);
 			}
 		}));
 
 		//Function that defines how a datastream object would be transformed from within flink
-		AsyncFunction<LoginRequest, LoginResponse> loginRestTransform = new AsyncInvokeRestApiFunction();
+		AsyncFunction<RegisterRequest, RegisterResponse> loginRestTransform = new AsyncInvokeRestApiFunction();
 
 		//Transform the datastream in parallel
-		DataStream<LoginResponse> result = AsyncDataStream
+		DataStream<RegisterResponse> result = AsyncDataStream
 						.unorderedWait(messageStream, loginRestTransform, 1000L, TimeUnit.MILLISECONDS, 20)
 						.setParallelism(20);
 
 		//Write the result back to the Kafka sink i.e response topic
-		result.addSink(new FlinkKafkaProducer010<>("flink-demo-resp", new LoginResponseSerializer(),
+		result.addSink(new FlinkKafkaProducer010<>("flink-demo-resp", new RegisterResponseSerializer(),
 				getKafkaConsumerConfig()));
 		env.execute();
 	}

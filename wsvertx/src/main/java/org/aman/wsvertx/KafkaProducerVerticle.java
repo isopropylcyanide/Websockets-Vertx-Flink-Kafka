@@ -65,7 +65,7 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 	}
 
 	/**
-	 * Generate a sample json login request
+	 * Generate a json object given the message object
 	 */
 	private Optional<JsonObject> getJsonRequest(Message<Object> object) {
 		try {

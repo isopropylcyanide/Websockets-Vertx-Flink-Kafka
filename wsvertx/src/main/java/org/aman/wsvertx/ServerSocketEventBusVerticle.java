@@ -6,8 +6,8 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.shareddata.LocalMap;
-import org.aman.wsvertx.model.codec.LoginRequestCodec;
-import org.aman.wsvertx.model.payload.LoginRequest;
+import org.aman.wsvertx.model.codec.RegisterRequestCodec;
+import org.aman.wsvertx.model.payload.RegisterRequest;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -34,22 +34,23 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 				logger.info("Request received at socket [" + webSocket.textHandlerID() + "]");
 				wsSessions.put(webSocket.textHandlerID(), webSocket.textHandlerID());
 
-				// Set delivery options to include a custom codec for sending the login request
+				// Set delivery options to include a custom codec for sending the register request
 				DeliveryOptions deliveryOptions = new DeliveryOptions();
-				deliveryOptions.setCodecName(LoginRequestCodec.class.getName());
-				vertx.eventBus().registerDefaultCodec(LoginRequest.class, new LoginRequestCodec());
+				deliveryOptions.setCodecName(RegisterRequestCodec.class.getName());
+				vertx.eventBus().registerDefaultCodec(RegisterRequest.class, new RegisterRequestCodec());
 
 				// Set handler for the incoming text data
 				webSocket.textMessageHandler(data -> {
 					logger.info("Received web socket data [" + data + "]");
 					ObjectMapper mapper = new ObjectMapper();
 					try {
-						LoginRequest loginRequest = mapper.readValue(data, LoginRequest.class);
-						loginRequest.setSenderId(webSocket.textHandlerID());
-						logger.info("Sending to kafka topic: data [" + loginRequest + "]");
+						RegisterRequest registerRequest = mapper.readValue(data, RegisterRequest.class);
+						registerRequest.setSenderId(webSocket.textHandlerID());
+						logger.info("Sending to kafka topic: data [" + registerRequest + "]");
 						// Send raw socket data to kafka producer event bus
 						vertx.eventBus()
-								.send("ws.messages.producer.event.bus", loginRequest, deliveryOptions, messageAsyncResult -> {
+								.send("ws.messages.producer.event.bus", registerRequest, deliveryOptions,
+										messageAsyncResult -> {
 									if (messageAsyncResult.succeeded()) {
 										logger.info("Message status [" + messageAsyncResult.result().body() + "]");
 									}

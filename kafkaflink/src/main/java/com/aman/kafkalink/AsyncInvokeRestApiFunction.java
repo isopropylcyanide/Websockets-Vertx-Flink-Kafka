@@ -1,8 +1,8 @@
 package com.aman.kafkalink;
 
-import com.aman.kafkalink.entity.LoginRequest;
-import com.aman.kafkalink.entity.LoginResponse;
 import com.aman.kafkalink.entity.MessageType;
+import com.aman.kafkalink.entity.RegisterRequest;
+import com.aman.kafkalink.entity.RegisterResponse;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.async.ResultFuture;
 import org.apache.flink.streaming.api.functions.async.RichAsyncFunction;
@@ -13,7 +13,7 @@ import org.asynchttpclient.DefaultAsyncHttpClient;
 import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
-public class AsyncInvokeRestApiFunction extends RichAsyncFunction<LoginRequest, LoginResponse> {
+public class AsyncInvokeRestApiFunction extends RichAsyncFunction<RegisterRequest, RegisterResponse> {
 	
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AsyncInvokeRestApiFunction.class);
@@ -38,16 +38,16 @@ public class AsyncInvokeRestApiFunction extends RichAsyncFunction<LoginRequest, 
 	}
 
 	@Override
-	public void timeout(LoginRequest loginRequest, ResultFuture<LoginResponse> resultFuture) throws Exception {
+	public void timeout(RegisterRequest RegisterRequest, ResultFuture<RegisterResponse> resultFuture) throws Exception {
 		resultFuture.completeExceptionally(new TimeoutException("[Api-Invocation] Timeout occurred during login"));
 	}
 
 	@Override
-	public void asyncInvoke(LoginRequest loginRequest, final ResultFuture<LoginResponse> resultFuture) throws Exception {
-		LoginResponse responseMessage = new LoginResponse();
-		responseMessage.setSenderId(loginRequest.getSenderId());
+	public void asyncInvoke(RegisterRequest RegisterRequest, final ResultFuture<RegisterResponse> resultFuture) throws Exception {
+		RegisterResponse responseMessage = new RegisterResponse();
+		responseMessage.setSenderId(RegisterRequest.getSenderId());
 		responseMessage.setSuccess(true);
-		responseMessage.setResponse("Stubbed response from flink job [Async API]");
+		responseMessage.setData("Registration successful. Stubbed response from flink job [Async API]");
 		responseMessage.setMessageType(MessageType.REST);
 		resultFuture.complete(Collections.singletonList(responseMessage));
 	}

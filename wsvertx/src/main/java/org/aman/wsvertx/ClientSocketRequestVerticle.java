@@ -4,11 +4,9 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientOptions;
-import org.aman.wsvertx.model.payload.LoginRequest;
+import org.aman.wsvertx.model.payload.RegisterRequest;
 import org.aman.wsvertx.util.Util;
 import org.apache.log4j.Logger;
-
-import java.util.Random;
 
 public class ClientSocketRequestVerticle extends AbstractVerticle {
 
@@ -33,16 +31,23 @@ public class ClientSocketRequestVerticle extends AbstractVerticle {
 				logger.info("Received response from server " + dataBuffer);
 			});
 
-			// Emulate client side requests
-			LoginRequest loginRequest = new LoginRequest();
-			loginRequest.setUsername("user" + new Random().nextInt());
-			loginRequest.setPassword("password" + new Random().nextInt());
-			loginRequest.setRequestUrl("/api/auth/login?username=" + loginRequest.getUsername()
-					+ "&password=" + loginRequest.getPassword());
-			Util.getJsonStringFromObject(loginRequest)
+			// Emulate client side register request
+			RegisterRequest registerRequest = createClientRegisterRequest();
+			Util.getJsonStringFromObject(registerRequest)
 					.ifPresent(webSocket::writeTextMessage);
 
 		});
+	}
+
+	/**
+	 * Creates a dummy client register request
+	 */
+	private RegisterRequest createClientRegisterRequest() {
+		RegisterRequest registerRequest = new RegisterRequest();
+		registerRequest.setEmail("amangarg1995sep@gmail.com");
+		registerRequest.setPassword("test");
+		registerRequest.setRegisterAsAdmin(true);
+		return registerRequest;
 	}
 
 	@Override
