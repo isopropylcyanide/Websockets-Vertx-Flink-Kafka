@@ -41,7 +41,7 @@ public class FlinkReadFromKafka {
 		}));
 
 		//Function that defines how a datastream object would be transformed from within flink
-		AsyncFunction<RegisterRequest, RegisterResponse> loginRestTransform = new AsyncInvokeRestApiFunction();
+		AsyncFunction<RegisterRequest, RegisterResponse> loginRestTransform = new AsyncRegisterApiInvocation();
 
 		//Transform the datastream in parallel
 		DataStream<RegisterResponse> result = AsyncDataStream
