@@ -1,9 +1,0 @@
-com\aman\kafkalink\AsyncRegisterApiInvocation$1.class
-com\aman\kafkalink\entity\RegisterRequestSchema.class
-com\aman\kafkalink\entity\RegisterResponse.class
-com\aman\kafkalink\entity\MessageType.class
-com\aman\kafkalink\entity\RegisterResponseSerializer.class
-com\aman\kafkalink\AsyncRegisterApiInvocation.class
-com\aman\kafkalink\entity\RegisterRequest.class
-com\aman\kafkalink\FlinkReadFromKafka$1.class
-com\aman\kafkalink\FlinkReadFromKafka.class

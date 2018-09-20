@@ -70,3 +70,7 @@ wsvertx/.idea
 
 kafkaflink/.idea
 kafkaflink/.idea/
+wsvertx/target/*
+wsvertex/[D[
+wsvertx/target/
+kafkaflink/target/*
