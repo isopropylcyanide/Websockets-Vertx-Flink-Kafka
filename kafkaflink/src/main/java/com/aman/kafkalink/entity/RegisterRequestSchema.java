@@ -8,7 +8,7 @@ import org.apache.flink.api.java.typeutils.TypeExtractor;
 
 import java.io.IOException;
 
-public class RegisterRequestSerializer implements DeserializationSchema<RegisterRequest>,
+public class RegisterRequestSchema implements DeserializationSchema<RegisterRequest>,
 		SerializationSchema<RegisterRequest> {
 
 	private static final long serialVersionUID = 6154188370181669711L;

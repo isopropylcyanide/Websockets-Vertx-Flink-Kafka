@@ -1,7 +1,7 @@
 package com.aman.kafkalink;
 
 import com.aman.kafkalink.entity.RegisterRequest;
-import com.aman.kafkalink.entity.RegisterRequestSerializer;
+import com.aman.kafkalink.entity.RegisterRequestSchema;
 import com.aman.kafkalink.entity.RegisterResponse;
 import com.aman.kafkalink.entity.RegisterResponseSerializer;
 import org.apache.flink.streaming.api.datastream.AsyncDataStream;
@@ -27,9 +27,10 @@ public class FlinkReadFromKafka {
 		Properties prop = getKafkaConsumerConfig();
 		// Create a flink consumer from the topic with a custom serializer for "RegisterRequest"
 		FlinkKafkaConsumer010<RegisterRequest> consumer = new FlinkKafkaConsumer010<>(prop.getProperty("topic"),
-				new RegisterRequestSerializer(), prop);
+				new RegisterRequestSchema(), prop);
 
-		consumer.setStartFromLatest();
+		// Start reading partitions from the consumer group’s committed offsets in Kafka brokers
+		consumer.setStartFromGroupOffsets();
 
 		// Create a flink data stream from the consumer source i.e Kafka topic
 		DataStream<RegisterRequest> messageStream = env.addSource(consumer);
@@ -45,7 +46,7 @@ public class FlinkReadFromKafka {
 
 		//Transform the datastream in parallel
 		DataStream<RegisterResponse> result = AsyncDataStream
-						.unorderedWait(messageStream, loginRestTransform, 1000L, TimeUnit.MILLISECONDS, 20)
+				.unorderedWait(messageStream, loginRestTransform, 5000L, TimeUnit.MILLISECONDS, 20)
 						.setParallelism(20);
 
 		//Write the result back to the Kafka sink i.e response topic
