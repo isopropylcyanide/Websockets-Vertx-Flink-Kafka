@@ -13,10 +13,10 @@ import org.asynchttpclient.DefaultAsyncHttpClient;
 import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
-public class AsyncInvokeRestApiFunction extends RichAsyncFunction<RegisterRequest, RegisterResponse> {
+public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterRequest, RegisterResponse> {
 	
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = Logger.getLogger(AsyncInvokeRestApiFunction.class);
+	private static final Logger logger = Logger.getLogger(AsyncRegisterApiInvocation.class);
 
 	/**
 	 * The Asynchronous client that can issue concurrent requests with callbacks
@@ -26,7 +26,7 @@ public class AsyncInvokeRestApiFunction extends RichAsyncFunction<RegisterReques
 	@Override
 	public void open(Configuration parameters) throws Exception {
 		logger.info("Opening connection " + parameters.toString());
-		asyncHttpClient = new DefaultAsyncHttpClient();
+		this.asyncHttpClient = new DefaultAsyncHttpClient();
 		
 	}
 	
@@ -51,5 +51,6 @@ public class AsyncInvokeRestApiFunction extends RichAsyncFunction<RegisterReques
 		responseMessage.setMessageType(MessageType.REST);
 		resultFuture.complete(Collections.singletonList(responseMessage));
 	}
-	
+
+
 }

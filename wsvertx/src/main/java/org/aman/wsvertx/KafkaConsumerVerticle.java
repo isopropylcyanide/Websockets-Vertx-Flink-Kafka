@@ -46,9 +46,9 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
 			senderId.ifPresent(id -> {
 				vertx.eventBus().send("ws-handler-" + id, message, messageAsyncResult -> {
 					if (messageAsyncResult.succeeded()) {
-						logger.info("Sending event to ws-handler-" + id);
+						logger.info("Kafka consumer event handled successfully [ws-handler-" + id + "]");
 					} else {
-						logger.info("Failed to send event to ws-handler-" + id);
+						logger.info("Failed to send event to [ws-handler-" + id + "]");
 					}
 				});
 			});

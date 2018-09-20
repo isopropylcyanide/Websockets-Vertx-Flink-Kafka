@@ -60,6 +60,7 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 						vertx.eventBus().consumer("ws-handler-" + webSocket.textHandlerID(), kafkaMessage -> {
 							logger.info("Received message from Kafka: " + kafkaMessage.body());
 							webSocket.writeTextMessage(kafkaMessage.body().toString());
+							kafkaMessage.reply("Writing the response to websocket");
 						});
 					} catch (IOException e) {
 						logger.error("Error deserializing websocket data [" + data + "] id [" + webSocket.textHandlerID() + "]");
