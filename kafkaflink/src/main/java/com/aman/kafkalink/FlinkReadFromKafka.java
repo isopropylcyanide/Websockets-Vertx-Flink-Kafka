@@ -46,8 +46,8 @@ public class FlinkReadFromKafka {
 
 		//Transform the datastream in parallel
 		DataStream<RegisterResponse> result = AsyncDataStream
-				.unorderedWait(messageStream, loginRestTransform, 5000L, TimeUnit.MILLISECONDS, 20)
-						.setParallelism(20);
+				.unorderedWait(messageStream, loginRestTransform, 5000L, TimeUnit.MILLISECONDS, 1)
+				.setParallelism(1);
 
 		//Write the result back to the Kafka sink i.e response topic
 		result.addSink(new FlinkKafkaProducer010<>("flink-demo-resp", new RegisterResponseSerializer(),

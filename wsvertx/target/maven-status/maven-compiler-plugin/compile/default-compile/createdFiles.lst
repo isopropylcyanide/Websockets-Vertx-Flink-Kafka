@@ -1,0 +1,12 @@
+org\aman\wsvertx\config\KafkaConsumerConfig.class
+org\aman\wsvertx\MainVerticle.class
+org\aman\wsvertx\config\KafkaProducerConfig.class
+org\aman\wsvertx\ServerSocketEventBusVerticle.class
+org\aman\wsvertx\ClientSocketRequestVerticle.class
+org\aman\wsvertx\EventBusKafkaReceiverVerticle.class
+org\aman\wsvertx\EventBusKafkaSenderVerticle.class
+org\aman\wsvertx\KafkaConsumerVerticle.class
+org\aman\wsvertx\model\codec\RegisterRequestCodec.class
+org\aman\wsvertx\KafkaProducerVerticle.class
+org\aman\wsvertx\util\Util.class
+org\aman\wsvertx\model\payload\RegisterRequest.class
