@@ -5,9 +5,11 @@
 ![image](https://user-images.githubusercontent.com/12872673/45586253-6a12ce00-b911-11e8-9508-3536f101717c.png)
 
 * #### An incoming request gets routed to a non blocking Vertx server which then writes the request to a specific Kafka topic. ####
-* #### A Flink consumer implemented as another side project consumes the messages from the above topic, processes it and writes the 
-* #### result to another queue. Every message has a unique sender id. Finally the Vertx Kafka consumer listens for responses from ####
-* #### the response queue and sends the result back to the websocket handler thus completing the entire async web request cycle ####
+* #### A Flink consumer implemented as another side project consumes the messages from the given request topic ####
+* #### [Optional] Flink job hits a Rest API hosted on a Spring boot server. You can use Jax-Rs or even hardcode the response ####
+* #### Flink writes the API result to another topic. Every message has a unique sender id. Flink sends the response with the same ####
+* #### Finally the Vertx Kafka consumer listens for responses from the response topic and sends an event to a websocket handler  ####
+* #### Websocket consumer for a specific id writes the response to its own socket thus completing the entire async request cycle ####
 
 
 ![image](https://user-images.githubusercontent.com/12872673/45586212-78acb580-b910-11e8-9d7a-9a3a85f22419.png)                             ![image](https://user-images.githubusercontent.com/12872673/45586233-ebb62c00-b910-11e8-9fc7-d48a73bcd31d.png)
@@ -53,6 +55,16 @@
  
  ---
  
+ ### What you do in the Flink Job depends on the use case. Options are ###
+* Make async rest API call
+* Interact with a database using an async clients
+* Return a mock response
+
+### Caveats ###
+* Here, we are making a request using the AsyncHTTP Client to an endpoint hosted on a Spring Boot Server
+* The rest API Server is listening on port 9004
+* You are free to experiment in this department.
+* If you choose to continue using the Rest API given in this project, make sure you have an endpoint implementation.
  
  ### Setting up the project ###
  * Run the kafka-flink connector project that waits for incoming data stream from kafka queue "flink_resp"
