@@ -30,7 +30,7 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 			LocalMap<String, String> wsSessions = vertx.sharedData().getLocalMap("ws.sessions");
 
 			//Filter socket base url
-			if (webSocket.path().equals("/wsapi")) {
+			if (webSocket.path().equals("/wsapi/register")) {
 				logger.info("Request received at socket [" + webSocket.textHandlerID() + "]");
 				wsSessions.put(webSocket.textHandlerID(), webSocket.textHandlerID());
 
@@ -58,7 +58,7 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 
 						// Receive processed data from kafka consumer and write back to the socket
 						vertx.eventBus().consumer("ws-handler-" + webSocket.textHandlerID(), kafkaMessage -> {
-							logger.info("Received message from Kafka: " + kafkaMessage.body());
+							logger.info("Received message from Kafka at Vertx: " + kafkaMessage.body());
 							webSocket.writeTextMessage(kafkaMessage.body().toString());
 							kafkaMessage.reply("Writing the response to websocket");
 						});

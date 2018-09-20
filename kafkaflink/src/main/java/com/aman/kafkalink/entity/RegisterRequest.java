@@ -1,6 +1,10 @@
 package com.aman.kafkalink.entity;
 
-public class RegisterRequest {
+import java.io.Serializable;
+
+public class RegisterRequest implements Serializable {
+
+	private static final long serialVersionUID = -1533359700996484156L;
 
 	private String username;
 
