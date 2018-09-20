@@ -18,6 +18,7 @@ import java.rmi.ServerException;
 import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
+
 public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterRequest, RegisterResponse> {
 
 	private static final long serialVersionUID = 1L;
@@ -70,7 +71,7 @@ public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterReques
 
 					responseMessage.setSenderId(registerRequest.getSenderId());
 					responseMessage.setSuccess(true);
-					responseMessage.setData("Registration successful. Stubbed response from flink job [Async API]" + response.getResponseBody());
+					responseMessage.setData(response.getResponseBody());
 					responseMessage.setMessageType(MessageType.REST);
 					responseMessage.setMessageType(MessageType.REST);
 					resultFuture.complete(Collections.singletonList(responseMessage));
