@@ -2,8 +2,6 @@
 ### A simple request response cycle using Websockets, Eclipse Vert-x server, Apache Kafka, Apache Flink. ###
 ---
 
-![image](https://user-images.githubusercontent.com/12872673/45586253-6a12ce00-b911-11e8-9508-3536f101717c.png)
-
 * #### An incoming request gets routed to a non blocking Vertx server which then writes the request to a specific Kafka topic. ####
 * #### A Flink consumer implemented as another side project consumes the messages from the given request topic ####
 * #### [Optional] Flink job hits a Rest API hosted on a Spring boot server. You can use Jax-Rs or even hardcode the response ####
@@ -66,13 +64,35 @@
 * You are free to experiment in this department.
 * If you choose to continue using the Rest API given in this project, make sure you have an endpoint implementation.
  
- ### Setting up the project ###
+### Setting up the project ###
  * Run the kafka-flink connector project that waits for incoming data stream from kafka queue "flink_resp"
  * Run the ws-vertx project that invokes an event on the event bus which writes a sample API request to the topic.
  * Verify that the message is written correctly on the topic "flink-demo"
  * Flink Kafka connector consumes the message, serializes it, transforms the data stream into a response stream
  * Flink job now writes the response back to the response topic "flink-demo-resp"
 
+### Testing the web socket flow ###
+* Incuded within the vertx flow is a client socket verticle that emulates a single web socket request
+* It is fired as soon as the server verticle is deployed. [Optional] Look for the following
+```
+  # Uncomment the below line for local UI testing: It creates a websocket request to the given server
+ //vertx.deployVerticle(new ClientSocketRequestVerticle());
+
+```
+
+* You can however choose to send websocket requests from a client manually. Use the following
+```
+   # Use the following websocket URL
+   ws://127.0.0.1:9443/wsapi/register
+
+   # Once the socket opens, begin sending messages in the correct format
+   {
+	    "email": "your email",
+	    "password": "your password ",
+	    "registerAsAdmin": true
+   }
+
+```
 
 ----
 ### Websockets ###
