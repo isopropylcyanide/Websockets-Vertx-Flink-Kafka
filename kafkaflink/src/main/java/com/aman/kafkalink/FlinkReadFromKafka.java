@@ -34,6 +34,7 @@ public class FlinkReadFromKafka {
 
 		// Create a flink data stream from the consumer source i.e Kafka topic
 		DataStream<RegisterRequest> messageStream = env.addSource(consumer);
+
 		logger.info(messageStream.process(new ProcessFunction<RegisterRequest, Object>() {
 			@Override
 			public void processElement(RegisterRequest RegisterRequest, Context context, Collector<Object> collector) throws Exception {
@@ -41,12 +42,16 @@ public class FlinkReadFromKafka {
 			}
 		}));
 
+		//Set default timeout for the api. Ideally this should be fetched from a config server
+		Integer apiTimeoutMs = 5000;
+
 		//Function that defines how a datastream object would be transformed from within flink
-		AsyncFunction<RegisterRequest, RegisterResponse> loginRestTransform = new AsyncRegisterApiInvocation();
+		AsyncFunction<RegisterRequest, RegisterResponse> loginRestTransform =
+				new AsyncRegisterApiInvocation(apiTimeoutMs);
 
 		//Transform the datastream in parallel
 		DataStream<RegisterResponse> result = AsyncDataStream
-				.unorderedWait(messageStream, loginRestTransform, 5000L, TimeUnit.MILLISECONDS, 1)
+				.unorderedWait(messageStream, loginRestTransform, apiTimeoutMs, TimeUnit.MILLISECONDS, 1)
 				.setParallelism(1);
 
 		//Write the result back to the Kafka sink i.e response topic

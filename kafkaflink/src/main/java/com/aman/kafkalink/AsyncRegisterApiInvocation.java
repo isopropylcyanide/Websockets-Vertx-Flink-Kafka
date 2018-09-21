@@ -14,26 +14,28 @@ import org.asynchttpclient.DefaultAsyncHttpClient;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
 
-import java.rmi.ServerException;
 import java.util.Collections;
-import java.util.concurrent.TimeoutException;
 
 
 public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterRequest, RegisterResponse> {
 
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(AsyncRegisterApiInvocation.class);
+	private final Integer apiTimeoutMs;
 
 	/**
 	 * The Asynchronous client that can issue concurrent requests with callbacks
 	 */
 	private transient AsyncHttpClient asyncHttpClient = null;
 
+	public AsyncRegisterApiInvocation(Integer apiTimeoutMs) {
+		this.apiTimeoutMs = apiTimeoutMs;
+	}
+
 	@Override
 	public void open(Configuration parameters) {
 		logger.info("Opening connection " + parameters.toString());
 		this.asyncHttpClient = new DefaultAsyncHttpClient();
-
 	}
 
 	@Override
@@ -44,8 +46,13 @@ public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterReques
 	}
 
 	@Override
-	public void timeout(RegisterRequest RegisterRequest, ResultFuture<RegisterResponse> resultFuture) throws Exception {
-		resultFuture.completeExceptionally(new TimeoutException("[Api-Invocation] Timeout occurred during login"));
+	public void timeout(RegisterRequest registerRequest, ResultFuture<RegisterResponse> resultFuture) throws Exception {
+		RegisterResponse registerResponse = new RegisterResponse();
+		registerResponse.setSuccess(false);
+		registerResponse.setSenderId(registerRequest.getSenderId());
+		registerResponse.setError("[TimeoutException Api-Invocation]");
+		registerResponse.setCause("Timeout occurred during registration");
+		resultFuture.complete(Collections.singletonList(registerResponse));
 	}
 
 	@Override
@@ -58,6 +65,7 @@ public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterReques
 				"/json")
 				.setHeader("Content-Length", "" + jsonContent.length()).setBody(jsonContent)
 				.setBody(jsonContent)
+				.setRequestTimeout(this.apiTimeoutMs)
 				.build();
 
 		try {
@@ -80,7 +88,12 @@ public class AsyncRegisterApiInvocation extends RichAsyncFunction<RegisterReques
 
 				@Override
 				public void onThrowable(Throwable t) {
-					resultFuture.completeExceptionally(new ServerException(t.getMessage()));
+					RegisterResponse registerResponse = new RegisterResponse();
+					registerResponse.setSuccess(false);
+					registerResponse.setSenderId(registerRequest.getSenderId());
+					registerResponse.setError(t.getMessage());
+					registerResponse.setCause(t.getCause().getMessage());
+					resultFuture.complete(Collections.singletonList(registerResponse));
 				}
 			});
 
