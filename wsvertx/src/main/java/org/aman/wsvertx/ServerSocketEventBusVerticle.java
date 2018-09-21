@@ -26,6 +26,11 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 		logger.info("Deployed verticle [" + this.getClass().getName() + "]");
 		this.httpServer = vertx.createHttpServer();
 
+		// Set delivery options to include a custom codec for sending the register request
+		DeliveryOptions deliveryOptions = new DeliveryOptions();
+		deliveryOptions.setCodecName(RegisterRequestCodec.class.getName());
+		vertx.eventBus().registerDefaultCodec(RegisterRequest.class, new RegisterRequestCodec());
+
 		httpServer.websocketHandler(webSocket -> {
 			LocalMap<String, String> wsSessions = vertx.sharedData().getLocalMap("ws.sessions");
 
@@ -34,10 +39,6 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 				logger.info("Request received at socket [" + webSocket.textHandlerID() + "]");
 				wsSessions.put(webSocket.textHandlerID(), webSocket.textHandlerID());
 
-				// Set delivery options to include a custom codec for sending the register request
-				DeliveryOptions deliveryOptions = new DeliveryOptions();
-				deliveryOptions.setCodecName(RegisterRequestCodec.class.getName());
-				vertx.eventBus().registerDefaultCodec(RegisterRequest.class, new RegisterRequestCodec());
 
 				// Set handler for the incoming text data
 				webSocket.textMessageHandler(data -> {
@@ -82,6 +83,9 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 
 		httpServer.listen(9443, httpServerAsyncResult -> {
 			logger.info("Http server up and running at port ["+ httpServer.actualPort() + "]");
+
+			//Deploy the client verticle that sends response to socket with unique id
+			vertx.deployVerticle(new ClientSocketRequestVerticle());
 		});
 	}
 

@@ -44,7 +44,7 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 				kafkaProducer.write(record, done -> {
 					if (done.succeeded()) {
 						RecordMetadata recordMetadata = done.result();
-						System.out.println("Message " + record.value() + " written on topic=" + recordMetadata.topic() +
+						logger.info("Message " + record.value() + " written on topic=" + recordMetadata.topic() +
 								", partition=" + recordMetadata.partition() +
 								", offset=" + recordMetadata.offset());
 						message.reply("Published to Kafka");

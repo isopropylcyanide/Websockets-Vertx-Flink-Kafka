@@ -63,4 +63,15 @@ public class RegisterRequest {
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
 	}
+
+	@Override
+	public String toString() {
+		return "RegisterRequest{" +
+				"username='" + username + '\'' +
+				", email='" + email + '\'' +
+				", password='" + password + '\'' +
+				", registerAsAdmin=" + registerAsAdmin +
+				", senderId='" + senderId + '\'' +
+				'}';
+	}
 }

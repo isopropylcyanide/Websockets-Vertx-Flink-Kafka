@@ -25,7 +25,7 @@ public class ClientSocketRequestVerticle extends AbstractVerticle {
 				.setSsl(false)
 				.setTrustAll(true);
 
-		this.httpClient = vertx.createHttpClient(options).websocket(9443, "localhost", "/wsapi/register",
+		this.httpClient = vertx.createHttpClient(options).websocket(9443, "127.0.0.1", "/wsapi/register",
 				webSocket -> {
 			// Set the handler for processing server response if any
 			webSocket.handler(dataBuffer -> {

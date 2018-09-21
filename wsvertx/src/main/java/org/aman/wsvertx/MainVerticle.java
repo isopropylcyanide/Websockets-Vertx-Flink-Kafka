@@ -21,9 +21,6 @@ public class MainVerticle extends AbstractVerticle {
 		//Deploy the server verticle that listens to socket reqs with unique id
 		vertx.deployVerticle(new ServerSocketEventBusVerticle());
 
-		//Deploy the client verticle that sends response to socket with unique id
-		vertx.deployVerticle(new ClientSocketRequestVerticle());
-
 		//Deploy the kafka sender verticle
 		vertx.deployVerticle(new EventBusKafkaSenderVerticle());
 
