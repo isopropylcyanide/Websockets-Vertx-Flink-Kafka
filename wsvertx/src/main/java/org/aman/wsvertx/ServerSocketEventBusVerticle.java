@@ -65,7 +65,7 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 						});
 					} catch (IOException e) {
 						logger.error("Error deserializing websocket data [" + data + "] id [" + webSocket.textHandlerID() + "]");
-						e.printStackTrace();
+						webSocket.writeTextMessage("Error deserializing websocket data [" + data + "] id [" + webSocket.textHandlerID() + "]");
 					}
 				});
 			}
@@ -83,7 +83,6 @@ public class ServerSocketEventBusVerticle extends AbstractVerticle {
 
 		httpServer.listen(9443, httpServerAsyncResult -> {
 			logger.info("Http server up and running at port ["+ httpServer.actualPort() + "]");
-
 			//Deploy the client verticle that sends response to socket with unique id
 			vertx.deployVerticle(new ClientSocketRequestVerticle());
 		});
