@@ -1,5 +1,7 @@
 package com.aman.kafkalink;
 
+import com.aman.kafkalink.config.FlinkKafkaConsumerConfig;
+import com.aman.kafkalink.config.FlinkKafkaProducerConfig;
 import com.aman.kafkalink.entity.RegisterRequest;
 import com.aman.kafkalink.entity.RegisterRequestSchema;
 import com.aman.kafkalink.entity.RegisterResponse;
@@ -24,10 +26,12 @@ public class FlinkReadFromKafka {
 	public static void main(String[] args) throws Exception {
 		StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 		env.setParallelism(1);
-		Properties prop = getKafkaConsumerConfig();
+		Properties consumerProp = FlinkKafkaConsumerConfig.getKafkaConsumerConfig();
+
 		// Create a flink consumer from the topic with a custom serializer for "RegisterRequest"
-		FlinkKafkaConsumer010<RegisterRequest> consumer = new FlinkKafkaConsumer010<>(prop.getProperty("topic"),
-				new RegisterRequestSchema(), prop);
+		FlinkKafkaConsumer010<RegisterRequest> consumer = new FlinkKafkaConsumer010<>(consumerProp.getProperty(
+				"topic"),
+				new RegisterRequestSchema(), consumerProp);
 
 		// Start reading partitions from the consumer group’s committed offsets in Kafka brokers
 		consumer.setStartFromGroupOffsets();
@@ -54,24 +58,13 @@ public class FlinkReadFromKafka {
 				.unorderedWait(messageStream, loginRestTransform, apiTimeoutMs, TimeUnit.MILLISECONDS, 1)
 				.setParallelism(1);
 
+		Properties producerProp = FlinkKafkaProducerConfig.getKafkaProduerConfig();
+
 		//Write the result back to the Kafka sink i.e response topic
-		result.addSink(new FlinkKafkaProducer010<>("flink-demo-resp", new RegisterResponseSerializer(),
-				getKafkaConsumerConfig()));
+		result.addSink(new FlinkKafkaProducer010<>(producerProp.getProperty("topic"), new RegisterResponseSerializer(),
+				producerProp));
 		env.execute();
 	}
 
 
-	/**
-	 * Generate the properties for the kafka consumer
-	 */
-	public static Properties getKafkaConsumerConfig() {
-		Properties prop = new Properties();
-		prop.setProperty("topic", "flink-demo");
-		prop.setProperty("bootstrap.servers", "localhost:9092");
-		prop.setProperty("zookeeper.connect", "localhost:2181");
-		prop.setProperty("group.id", "flink-login-request-consumer-group");
-		prop.setProperty("enable.auto.commit", "true");
-		return prop;
-		
-	}
 }

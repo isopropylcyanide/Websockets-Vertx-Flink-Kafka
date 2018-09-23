@@ -36,7 +36,9 @@ public class KafkaConsumerVerticle extends AbstractVerticle {
 		kafkaConsumer.handler(record -> {
 			// Extract the message & put it back into event.bus for ws handler to intercept
 			JsonObject message = record.value();
-			logger.info("Consumed message from Kafka topic [" + this.topic + "]: " + message);
+			logger.info("Consumed Message " + record.value() + "on topic=" + record.topic() +
+					", partition=" + record.partition() +
+					", offset=" + record.offset());
 
 			//Extract the sender id from the message
 			Optional<String> senderId = Optional.ofNullable(message.getValue("senderId"))
