@@ -1,13 +1,12 @@
 package org.aman.wsvertx;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.eventbus.Message;
-import io.vertx.core.json.JsonObject;
 import io.vertx.kafka.client.producer.KafkaProducerRecord;
 import io.vertx.kafka.client.producer.KafkaWriteStream;
 import org.aman.wsvertx.config.KafkaProducerConfig;
+import org.aman.wsvertx.model.payload.RegisterRequest;
+import org.aman.wsvertx.util.Util;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.log4j.Logger;
@@ -19,7 +18,7 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 	private static final Logger logger = Logger.getLogger(KafkaProducerVerticle.class);
 
 	private String topic;
-	private KafkaWriteStream<String, JsonObject> kafkaProducer;
+	private KafkaWriteStream<String, RegisterRequest> kafkaProducer;
 
 	public KafkaProducerVerticle(String topic) {
 		this.topic = topic;
@@ -35,9 +34,11 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 
 		// Listen to the events on the bus with the address "kafka.queue.publisher"
 		vertx.eventBus().consumer("ws.messages.producer.event.bus", message -> {
-			Optional<JsonObject> validJsonRequestOpt = getJsonRequest(message);
-			Optional<ProducerRecord<String, JsonObject>> kafkaProducerRecordOpt =
-					validJsonRequestOpt.map(jsonReq -> KafkaProducerRecord.create(this.topic, jsonReq))
+			String payloadString = (String) message.body();
+
+			Optional<ProducerRecord<String, RegisterRequest>> kafkaProducerRecordOpt =
+					Util.getRegisterRequestFromJsonString(payloadString)
+							.map(request -> KafkaProducerRecord.create(this.topic, request))
 							.map(KafkaProducerRecord::record);
 
 			kafkaProducerRecordOpt.ifPresent(record -> {
@@ -64,19 +65,6 @@ public class KafkaProducerVerticle extends AbstractVerticle {
 		});
 	}
 
-	/**
-	 * Generate a json object given the message object
-	 */
-	private Optional<JsonObject> getJsonRequest(Message<Object> object) {
-		try {
-			ObjectMapper mapper = new ObjectMapper();
-			String jsonString = mapper.writeValueAsString(object.body());
-			return Optional.ofNullable(new JsonObject(jsonString));
-		} catch (Exception e) {
-			logger.error("Cannot serialize [" + object + "] into JSON");
-		}
-		return Optional.empty();
-	}
 
 	@Override
 	public void stop() throws Exception {

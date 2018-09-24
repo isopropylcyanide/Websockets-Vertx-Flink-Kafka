@@ -1,0 +1,18 @@
+{
+    "type": "record",
+    "namespace": "org.aman.wsvertx.model.payload",
+    "name": "RegisterRequest",
+    "version": "1",
+    "fields": [
+        { "name": "email", "type": "string", "doc": "User email" },
+        { "name": "password", "type": "string", "doc": "User password" },
+        { "name": "senderId", "type": "string", "doc": "Socket sender id" },
+        { "name": "registerAsAdmin", "type": "boolean", "default": true, "doc": "Admin status"}
+    ]
+}
+
+{
+	"email": "aman.garg@accoliteindia.com",
+	"password": "t1",
+	"registerAsAdmin": true
+}

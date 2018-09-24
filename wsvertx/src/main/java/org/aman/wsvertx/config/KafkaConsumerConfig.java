@@ -13,7 +13,7 @@ public class KafkaConsumerConfig {
 
 	public static KafkaReadStream<String, JsonObject> getKafkaConsumerConfig(Vertx vertx) {
 		Properties config = new Properties();
-		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092,localhost:9093,localhost:9094");
+		config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
 		config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
 		config.put(ConsumerConfig.GROUP_ID_CONFIG, "flink-resp-vertx-group");
 		config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);

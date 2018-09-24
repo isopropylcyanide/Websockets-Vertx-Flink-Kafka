@@ -19,7 +19,7 @@ public class ClientSocketRequestVerticle extends AbstractVerticle {
 
 	@Override
 	public void start(Future<Void> future) throws Exception {
-		logger.info("Deployed verticle [" + this.getClass().getName());
+		logger.info("Deployed verticle [" + this.getClass().getName() + "]");
 
 		HttpClientOptions options = new HttpClientOptions()
 				.setSsl(false)
@@ -27,16 +27,15 @@ public class ClientSocketRequestVerticle extends AbstractVerticle {
 
 		this.httpClient = vertx.createHttpClient(options).websocket(9443, "127.0.0.1", "/wsapi/register",
 				webSocket -> {
-			// Set the handler for processing server response if any
-			webSocket.handler(dataBuffer -> {
-				logger.info("Received response from server " + dataBuffer);
-			});
+					// Set the handler for processing server response if any
+					webSocket.handler(dataBuffer -> {
+						logger.info("Received response from server " + dataBuffer);
+					});
 
-			// Emulate client side register request
-			RegisterRequest registerRequest = createClientRegisterRequest();
-			Util.getJsonStringFromObject(registerRequest)
-					.ifPresent(webSocket::writeTextMessage);
-
+					// Emulate client side register request
+					RegisterRequest registerRequest = createClientRegisterRequest();
+					Util.getJsonString(registerRequest)
+							.ifPresent(webSocket::writeTextMessage);
 		});
 	}
 
@@ -44,12 +43,14 @@ public class ClientSocketRequestVerticle extends AbstractVerticle {
 	 * Creates a dummy client register request
 	 */
 	private RegisterRequest createClientRegisterRequest() {
-		RegisterRequest registerRequest = new RegisterRequest();
-		registerRequest.setEmail("amangarg1995sep@gmail.com");
-		registerRequest.setPassword("test");
-		registerRequest.setRegisterAsAdmin(true);
-		return registerRequest;
+		return RegisterRequest.newBuilder()
+				.setEmail("amangarg1995sep@gmail.com")
+				.setPassword("t1")
+				.setRegisterAsAdmin(true)
+				.setSenderId(Util.generateRandomUUID())
+				.build();
 	}
+
 
 	@Override
 	public void stop(Future<Void> future) throws Exception {
