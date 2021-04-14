@@ -2,12 +2,12 @@
 ### A simple request response cycle using Websockets, Eclipse Vert-x server, Apache Kafka, Apache Flink. ###
 ---
 
-* #### An incoming request gets routed to a non blocking Vertx server which then writes the request to a specific Kafka topic. ####
-* #### A Flink consumer implemented as another side project consumes the messages from the given request topic ####
-* #### [Optional] Flink job hits a Rest API hosted on a Spring boot server. You can use Jax-Rs or even hardcode the response ####
-* #### Flink writes the API result to another topic. Every message has a unique sender id. Flink sends the response with the same ####
-* #### Finally the Vertx Kafka consumer listens for responses from the response topic and sends an event to a websocket handler  ####
-* #### Websocket consumer for a specific id writes the response to its own socket thus completing the entire async request cycle ####
+- An incoming request gets routed to a non blocking Vertx server which then writes the request to a specific Kafka topic.
+- A Flink consumer implemented as another side project consumes the messages from the given request topic 
+- (Optional) Flink job hits a Rest API hosted on a Spring boot server. You can use Jax-Rs or even hardcode the response 
+- Flink writes the API result to another topic. Every message has a unique sender id. Flink sends the response with the same 
+- Finally the Vertx Kafka consumer listens for responses from the response topic and sends an event to a websocket handler  
+- Websocket consumer for a specific id writes the response to its own socket thus completing the entire async request cycle 
 
 
 ![image](https://user-images.githubusercontent.com/12872673/45586212-78acb580-b910-11e8-9d7a-9a3a85f22419.png)                             ![image](https://user-images.githubusercontent.com/12872673/45586233-ebb62c00-b910-11e8-9fc7-d48a73bcd31d.png)
